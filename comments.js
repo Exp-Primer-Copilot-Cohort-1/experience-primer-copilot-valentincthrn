@@ -1,92 +1,81 @@
 // create web server 
 
-// import express
-const express = require('express');
-// create object express
-const app = express();
-// import body-parser
-const bodyParser = require('body-parser');
-// import mongoose
-const mongoose = require('mongoose');
-// import express-session
-const session = require('express-session');
-// import connect-mongo
-const MongoStore = require('connect-mongo')(session);
-// import flash
-const flash = require('connect-flash');
-// import config
-const config = require('./config/config').get(process.env.NODE_ENV);
-// import routes
-const api = require('./routes/api');
-const user = require('./routes/user');
-// import models
-const { User } = require('./models/user');
-const { Comment } = require('./models/comment');
-// import middleware
-const { auth } = require('./middleware/auth');
+var express = require('express');
+var app = express();
+var fs = require('fs');
+var bodyParser = require('body-parser');
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
+var jsonParser = bodyParser.json()
 
-// connect to database
-mongoose.Promise = global.Promise;
-mongoose.connect(config.DATABASE);
+var comments = require('./comments.json');
+var newComments = require('./newComments.json');
 
-// use body-parser
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.static('public'));
 
-// use express-session
-app.use(session({
-    secret: config.SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: { maxAge: 60000 },
-    store: new MongoStore({
-        mongooseConnection: mongoose.connection
-    })
-}));
-
-// use flash
-app.use(flash());
-
-// use express.static
-app.use(express.static('client/build'));
-
-// use routes
-app.use('/api', api);
-app.use('/user', user);
-
-// get
-app.get('/api/auth', auth, (req, res) => {
-    res.json({
-        isAuth: true,
-        id: req.user._id,
-        email: req.user.email,
-        name: req.user.name,
-        lastname: req.user.lastname
-    });
+// get request
+app.get('/', function(req, res){
+    res.sendFile(__dirname + "/" + "index.html");
 });
 
-app.get('/api/logout', auth, (req, res) => {
-    req.user.deleteToken(req.token, (err, user) => {
-        if(err) {
-            return res.status(400).send(err);
-        }
-        res.sendStatus(200);
-    });
+// post request
+app.post('/process_post', urlencodedParser, function(req, res){
+    // output json format
+    var response = {
+        "first_name": req.body.first_name,
+        "last_name": req.body.last_name,
+        "comment": req.body.comment,
+        "date": req.body.date
+    };
+    console.log(response);
+    // res.end(JSON.stringify(response));
+    res.sendFile(__dirname + "/" + "index.html");
+})
+
+// post request
+app.post('/process_post', jsonParser, function(req, res){
+    // output json format
+    var response = {
+        "first_name": req.body.first_name,
+        "last_name": req.body.last_name,
+        "comment": req.body.comment,
+        "date": req.body.date
+    };
+    console.log(response);
+    // res.end(JSON.stringify(response));
+    res.sendFile(__dirname + "/" + "index.html");
+})
+
+// get request
+app.get('/comments', function(req, res){
+    res.sendFile(__dirname + "/" + "comments.json");
 });
 
-// post
-app.post('/api/register', (req, res) => {
-    const user = new User(req.body);
-    // save user
-    user.save((err, doc) => {
-        if(err) {
-            return res.json({success: false});
-        }
-        res.status(200).json({
-            success: true,
-            user: doc
-        });
-    });
-});
+// post request
+app.post('/comments', urlencodedParser, function(req, res){
+    // output json format
+    var response = {
+        "first_name": req.body.first_name,
+        "last_name": req.body.last_name,
+        "comment": req.body.comment,
+        "date": req.body.date
+    };
+    console.log(response);
+    // res.end(JSON.stringify(response));
+    res.sendFile(__dirname + "/" + "comments.json");
+})
 
-app.post('/api/login',)
+// post request
+app.post('/comments', jsonParser, function(req, res){
+    // output json format
+    var response = {
+        "first_name": req.body.first_name,
+        "last_name": req.body.last_name,
+        "comment": req.body.comment,
+        "date": req.body.date
+    };
+    console.log(response);
+    // res.end(JSON.stringify(response));
+    res.sendFile(__dirname + "/" + "comments.json");
+})
+
+// get request
